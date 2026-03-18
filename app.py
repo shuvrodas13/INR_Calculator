@@ -25,14 +25,19 @@ def generate_pdf(patient, control, ratio, index, inr):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer)
     styles = getSampleStyleSheet()
+    styles['Title'].fontSize = 20
+    styles['Title'].leading = 24
+
+    styles['Normal'].fontSize = 14
+    styles['Normal'].leading = 18
     elements = []
 
     elements.append(Paragraph("INR Calculation Report", styles['Title']))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 20))
 
     elements.append(Paragraph(f"Patient Value: {patient}", styles['Normal']))
     elements.append(Paragraph(f"Control Value: {control}", styles['Normal']))
-    elements.append(Spacer(1, 12))
+    elements.append(Spacer(1, 15))
 
     elements.append(Paragraph(f"Ratio: {ratio:.3f}", styles['Normal']))
     elements.append(Paragraph(f"Index: {index:.2f}", styles['Normal']))
