@@ -31,6 +31,8 @@ def generate_pdf(pid, patient, control, ratio, index, inr):
     elements.append(Spacer(1, 20))
 
     elements.append(Paragraph(f"Patient ID: {pid}", styles['Normal']))
+    elements.append(Spacer(1, 10))
+    
     elements.append(Paragraph(f"Patient Value: {patient}", styles['Normal']))
     elements.append(Paragraph(f"Control Value: {control}", styles['Normal']))
     elements.append(Spacer(1, 10))
