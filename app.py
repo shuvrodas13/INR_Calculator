@@ -1,43 +1,39 @@
 import streamlit as st
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_CENTER
 from io import BytesIO
 
-# Title
 st.title("INR Calculator")
 
-st.markdown("""
-This tool calculates **Ratio**, **Index**, and **INR** based on user input.
+# ID Input (6 digits or more)
+patient_id = st.text_input("Patient ID")
 
-- **Ratio = Patient / Control**
-- **Index = (Control × 100) / Patient**
-- **INR = Ratio ^ ISI** (ISI = 1.2)
-""")
-
-# Input fields (no sidebar)
-patient_value = st.number_input("Enter Patient Value",min_value=0.0, step=0.1, format="%.2f",placeholder=None)
-control_value = st.number_input("Enter Control Value",min_value=0.0, step=0.1, format="%.2f",placeholder=None)
+patient_value = st.number_input("Patient Value", min_value=0.0, step=0.1)
+control_value = st.number_input("Control Value", min_value=0.0, step=0.1)
 
 ISI = 1.2
 
-# Function to generate PDF
-def generate_pdf(patient, control, ratio, index, inr):
+# PDF Function
+def generate_pdf(pid, patient, control, ratio, index, inr):
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer)
     styles = getSampleStyleSheet()
-    styles['Title'].fontSize = 20
-    styles['Title'].leading = 24
 
+    # Styling
+    styles['Title'].alignment = TA_CENTER
+    styles['Title'].fontSize = 20
     styles['Normal'].fontSize = 14
-    styles['Normal'].leading = 18
+
     elements = []
 
-    elements.append(Paragraph("INR Calculation Report", styles['Title']))
+    elements.append(Paragraph("INR Report", styles['Title']))
     elements.append(Spacer(1, 20))
 
+    elements.append(Paragraph(f"Patient ID: {pid}", styles['Normal']))
     elements.append(Paragraph(f"Patient Value: {patient}", styles['Normal']))
     elements.append(Paragraph(f"Control Value: {control}", styles['Normal']))
-    elements.append(Spacer(1, 15))
+    elements.append(Spacer(1, 10))
 
     elements.append(Paragraph(f"Ratio: {ratio:.3f}", styles['Normal']))
     elements.append(Paragraph(f"Index: {index:.2f}", styles['Normal']))
@@ -47,8 +43,14 @@ def generate_pdf(patient, control, ratio, index, inr):
     buffer.seek(0)
     return buffer
 
+# Validation
+valid_id = patient_id.isdigit() and len(patient_id) >= 6
+
+if patient_id and not valid_id:
+    st.error("Patient ID must be at least 6 digits.")
+
 # Calculation
-if patient_value > 0 and control_value > 0:
+if valid_id and patient_value > 0 and control_value > 0:
     ratio = patient_value / control_value
     index = (control_value * 100) / patient_value
     inr = ratio ** ISI
@@ -59,20 +61,22 @@ if patient_value > 0 and control_value > 0:
     st.metric("INR", f"{inr:.3f}")
 
     # Generate PDF
-    pdf_file = generate_pdf(patient_value, control_value, ratio, index, inr)
+    pdf = generate_pdf(patient_id, patient_value, control_value, ratio, index, inr)
 
     st.download_button(
-        label="Download Report as PDF",
-        data=pdf_file,
-        file_name="INR_Report.pdf",
+        "📄 Download Report",
+        data=pdf,
+        file_name=f"INR_Report_{patient_id}.pdf",
         mime="application/pdf"
     )
 
-elif patient_value == 0 or control_value == 0:
-    st.warning("Please enter values greater than 0 for both Patient and Control.")
-else:
-    st.info("Enter the values to see the calculations.")
+    # Print Button (browser print)
+    st.markdown("""
+        <button onclick="window.print()">🖨️ Print Report</button>
+    """, unsafe_allow_html=True)
 
-# Footer
+elif patient_value == 0 or control_value == 0:
+    st.warning("Enter values greater than 0.")
+
 st.markdown("---")
 st.markdown("Developed by **Bipropod Das Shubro**")
