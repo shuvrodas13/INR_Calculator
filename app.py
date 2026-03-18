@@ -15,8 +15,8 @@ This tool calculates **Ratio**, **Index**, and **INR** based on user input.
 """)
 
 # Input fields (no sidebar)
-patient_value = st.number_input("Enter Patient Value", min_value=0.0, step=0.1, format="%.2f")
-control_value = st.number_input("Enter Control Value", min_value=0.0, step=0.1, format="%.2f")
+patient_value = st.number_input("Enter Patient Value", min_value=0.0, format="%.2f")
+control_value = st.number_input("Enter Control Value", min_value=0.0, format="%.2f")
 
 ISI = 1.2
 
